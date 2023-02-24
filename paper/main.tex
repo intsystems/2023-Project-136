@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage{arxiv}
+\usepackage{customized_arxiv}
 
 \usepackage[utf8]{inputenc}
 \usepackage[english, russian]{babel}
@@ -13,25 +13,16 @@
 \usepackage{graphicx}
 \usepackage{natbib}
 \usepackage{doi}
+\usepackage{amsmath, amsfonts, amssymb, amsthm, mathtools}
 
 
 
-\title{A template for the \emph{arxiv} style}
+\title{Stochastic Newton with Arbitrary Sampling}
 
-\author{ David S.~Hippocampus\thanks{Use footnote for providing further
-		information about author (webpage, alternative
-		address)---\emph{not} for acknowledging funding agencies.} \\
-	Department of Computer Science\\
-	Cranberry-Lemon University\\
-	Pittsburgh, PA 15213 \\
-	\texttt{hippo@cs.cranberry-lemon.edu} \\
+\author{Denis Shveykin
 	%% examples of more authors
 	\And
-	Elias D.~Striatum \\
-	Department of Electrical Engineering\\
-	Mount-Sheikh University\\
-	Santa Narimana, Levand \\
-	\texttt{stariate@ee.mount-sheikh.edu} \\
+	Rustem Islamov
 	%% \AND
 	%% Coauthor \\
 	%% Affiliation \\
@@ -50,109 +41,56 @@
 }
 \date{}
 
-\renewcommand{\shorttitle}{\textit{arXiv} Template}
+\renewcommand{\shorttitle}{Stochastic Newton with Arbitrary Sampling}
 
 %%% Add PDF metadata to help others organize their library
 %%% Once the PDF is generated, you can check the metadata with
 %%% $ pdfinfo template.pdf
 \hypersetup{
-pdftitle={A template for the arxiv style},
-pdfsubject={q-bio.NC, q-bio.QM},
-pdfauthor={David S.~Hippocampus, Elias D.~Striatum},
-pdfkeywords={First keyword, Second keyword, More},
+pdftitle={Stochastic Newton with Arbitrary Sampling},
+pdfsubject={},
+pdfauthor={Denis Shveykin, Rustem Islamov},
+pdfkeywords={},
 }
 
 \begin{document}
+	
 \maketitle
 
 \begin{abstract}
-	\lipsum[1]
+	
+	The problem of minimizing the average of a large number sufficiently smooth and strongly convex functions is ubiquitous in machine learning. Stochastic first-order methods for this problem of Stochastic Gradient Descent type are well studied. In turn, second-order methods, such as Newton, have certain advances since they can adapt to the curvature of the problem. They are also known for their fast convergence rates. But stochastic variants Newton-type methods are not well-studied and have limitations on the batch size. Dmitry Kovalev et al proposed a method which requires no limitations on batch sizes. Our goal is to explore this method with different sampling strategies that lead to practical improvements.
+	
 \end{abstract}
 
 
-\keywords{First keyword \and Second keyword \and More}
+\keywords{}
 
 \section{Introduction}
-\lipsum[2]
-\lipsum[3]
 
-\section{Headings: first level}
-\label{sec:headings}
-
-\lipsum[4] See Section \ref{sec:headings}.
-
-\subsection{Headings: second level}
-\lipsum[5]
-\begin{equation}
-	\xi _{ij}(t)=P(x_{t}=i,x_{t+1}=j|y,v,w;\theta)= {\frac {\alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}{\sum _{i=1}^{N} \sum _{j=1}^{N} \alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}}
-\end{equation}
-
-\subsubsection{Headings: third level}
-\lipsum[6]
-
-\paragraph{Paragraph}
-\lipsum[7]
-
-
-
-\section{Examples of citations, figures, tables, references}
-\label{sec:others}
-
-\subsection{Citations}
-Citations use \verb+natbib+. The documentation may be found at
-\begin{center}
-	\url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
-\end{center}
-
-Here is an example usage of the two main commands (\verb+citet+ and \verb+citep+): Some people thought a thing \citep{kour2014real, hadash2018estimate} but other people thought something else \citep{kour2014fast}. Many people have speculated that if we knew exactly why \citet{kour2014fast} thought this\dots
-
-\subsection{Figures}
-\lipsum[10]
-See Figure \ref{fig:fig1}. Here is how you add footnotes. \footnote{Sample of the first footnote.}
-\lipsum[11]
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.5\textwidth]{../figures/log_reg_cs_exp.eps}
-	\caption{Sample figure caption.}
-	\label{fig:fig1}
-\end{figure}
-
-\subsection{Tables}
-See awesome Table~\ref{tab:table}.
-
-The documentation for \verb+booktabs+ (`Publication quality tables in LaTeX') is available from:
-\begin{center}
-	\url{https://www.ctan.org/pkg/booktabs}
-\end{center}
-
-
-\begin{table}
-	\caption{Sample table title}
-	\centering
-	\begin{tabular}{lll}
-		\toprule
-		\multicolumn{2}{c}{Part}                   \\
-		\cmidrule(r){1-2}
-		Name     & Description     & Size ($\mu$m) \\
-		\midrule
-		Dendrite & Input terminal  & $\sim$100     \\
-		Axon     & Output terminal & $\sim$10      \\
-		Soma     & Cell body       & up to $10^6$  \\
-		\bottomrule
-	\end{tabular}
-	\label{tab:table}
-\end{table}
-
-\subsection{Lists}
-\begin{itemize}
-	\item Lorem ipsum dolor sit amet
-	\item consectetur adipiscing elit.
-	\item Aliquam dignissim blandit est, in dictum tortor gravida eget. In ac rutrum magna.
-\end{itemize}
-
-
-\bibliographystyle{unsrtnat}
+	The problem is to minimize the empirical risk which has finite-sum structure \cite{kovalev}:
+	\begin{equation}
+		\underset{x \in \mathbb R^d}{\min} \left[ f(x) \overset{def}{=} \frac{1}{n} \sum \limits_{i=1}^n f_i(x) \right]
+	\end{equation}
+	where each $f_i$ is assumed to have Lipschitz Hessian. \\
+	
+	The stochastic approach is used, because $n$ is very large and it is computationally difficult to evaluate the gradient of each $f_i$ on each step. The Stochastic Gradient Descent (SGD) method \cite{SGD-1} calculates the gradients of some randomly chosen $f_i$, which has cheap iterations compared to the deterministic algorithm. Such methods have two certain advantages. Firstly, they do not rely on the number of used $f_i$ on a single step, which is called the batch size. Therefore, these methods can be applied even with small batches. \\
+	
+	Secondly, there are ways to solve some common problem that arises due to the stochastic nature of the methods. The fact is that stochastic methods provide convergence to a neighbourhood of the solution only \cite{sgd-hogwild, sgd-general-analysis}. Its size is proportional to the variance of the stochastic gradient. So the second advantage of SGD is presence of so-called variance-reduced methods \cite{exp-convergence, advances-NIPS, unified-sgd, one-method}, which mitigate the mentioned effect. However, these methods' computational complexity depends on the curvature of the problem, which is called the condition number and is defined as the ratio of Lipschitzness and strong convexity parameters. \\
+	
+	This leads to usage of second-order methods, such as the Newton method. Taking into account the derivatives of the second order makes it possible to adjust the algorithm's step sizes to the curvature of the problem. Unfortunately, much less literature has been written on this topic than about first-order methods. Some proposed algorithms need extra assumptions or regularization to converge. Some works provide stochastic Newton-type methods, whose computational complexity exceeds such in the variance-reduced SGD variants. \\
+	
+	In addition, there are presented many algorithms that need large batch sizes. Particularly, the required batch size is commonly quadratically proportional to the inverse of the desired accuracy. That means that one need to evaluate a large number of $f_i$ Hessians. And this decreases the profit gained by adding randomness into the algorithm, because these batch sizes can become as big as $n$. \\
+	
+	Dmitry Kovalev, Konstantin Mishchenko and Peter Richtarik proposed a simple Stochastic Newton algorithm, which can work with small batches, even with batches of size one. Their algorithm does not provide unbiased estimates but nevertheless shows good convergence. This is achieved by developing new Lyapunov functions that are specific to second-order methods. Our goal is to apply different sampling strategies to this method and explore their performance. \\
+	
+	The basic set of sampling strategies can be taken from [parallel CDM], where these strategies are applied to the Parallel Coordinate Descent methods. It is also known that so-called Importance Sampling can improve the SGD performance, since it can reduce the stochastic gradient variance. \\
+	
+	
+	
+% references title
+\renewcommand\refname{References}	
+\bibliographystyle{plain}
 \bibliography{references}
 
 \end{document}

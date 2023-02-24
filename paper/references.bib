@@ -1,25 +1,133 @@
-@inproceedings{kour2014real,
-  title={Real-time segmentation of on-line handwritten arabic script},
-  author={Kour, George and Saabne, Raid},
-  booktitle={Frontiers in Handwriting Recognition (ICFHR), 2014 14th International Conference on},
-  pages={417--422},
-  year={2014},
-  organization={IEEE}
+@misc{kovalev,
+  doi = {10.48550/ARXIV.1912.01597},
+  
+  url = {https://arxiv.org/abs/1912.01597},
+  
+  author = {Kovalev, Dmitry and Mishchenko, Konstantin and Richtárik, Peter},
+  
+  keywords = {Machine Learning (cs.LG), Optimization and Control (math.OC), Machine Learning (stat.ML), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Mathematics, FOS: Mathematics},
+  
+  title = {Stochastic Newton and Cubic Newton Methods with Simple Local Linear-Quadratic Rates},
+  
+  publisher = {arXiv},
+  
+  year = {2019},
+  
+  copyright = {arXiv.org perpetual, non-exclusive license}
 }
 
-@inproceedings{kour2014fast,
-  title={Fast classification of handwritten on-line Arabic characters},
-  author={Kour, George and Saabne, Raid},
-  booktitle={Soft Computing and Pattern Recognition (SoCPaR), 2014 6th International Conference of},
-  pages={312--318},
-  year={2014},
-  organization={IEEE},
-  doi={10.1109/SOCPAR.2014.7008025}
+
+@article{SGD-1,
+author = {Herbert Robbins and Sutton Monro},
+title = {{A Stochastic Approximation Method}},
+volume = {22},
+journal = {The Annals of Mathematical Statistics},
+number = {3},
+publisher = {Institute of Mathematical Statistics},
+pages = {400 -- 407},
+year = {1951},
+doi = {10.1214/aoms/1177729586},
+URL = {https://doi.org/10.1214/aoms/1177729586}
 }
 
-@article{hadash2018estimate,
-  title={Estimate and Replace: A Novel Approach to Integrating Deep Neural Networks with Existing Applications},
-  author={Hadash, Guy and Kermany, Einat and Carmeli, Boaz and Lavi, Ofer and Kour, George and Jacovi, Alon},
-  journal={arXiv preprint arXiv:1804.09028},
-  year={2018}
+
+
+@InProceedings{sgd-hogwild,
+  title = 	 {{SGD} and Hogwild! {C}onvergence Without the Bounded Gradients Assumption},
+  author =       {Nguyen, Lam and NGUYEN, PHUONG HA and van Dijk, Marten and Richtarik, Peter and Scheinberg, Katya and Takac, Martin},
+  booktitle = 	 {Proceedings of the 35th International Conference on Machine Learning},
+  pages = 	 {3750--3758},
+  year = 	 {2018},
+  editor = 	 {Dy, Jennifer and Krause, Andreas},
+  volume = 	 {80},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {10--15 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v80/nguyen18c/nguyen18c.pdf},
+  url = 	 {https://proceedings.mlr.press/v80/nguyen18c.html},
+  abstract = 	 {Stochastic gradient descent (SGD) is the optimization algorithm of choice in many machine learning applications such as regularized empirical risk minimization and training deep neural networks. The classical convergence analysis of SGD is carried out under the assumption that the norm of the stochastic gradient is uniformly bounded. While this might hold for some loss functions, it is always violated for cases where the objective function is strongly convex. In (Bottou et al.,2016), a new analysis of convergence of SGD is performed under the assumption that stochastic gradients are bounded with respect to the true gradient norm. Here we show that for stochastic problems arising in machine learning such bound always holds; and we also propose an alternative convergence analysis of SGD with diminishing learning rate regime, which results in more relaxed conditions than those in (Bottou et al.,2016). We then move on the asynchronous parallel setting, and prove convergence of Hogwild! algorithm in the same regime, obtaining the first convergence results for this method in the case of diminished learning rate.}
 }
+
+
+@article{sgd-general-analysis,
+  doi = {10.48550/ARXIV.1901.09401},
+  
+  url = {https://arxiv.org/abs/1901.09401},
+  
+  author = {Gower, Robert Mansel and Loizou, Nicolas and Qian, Xun and Sailanbayev, Alibek and Shulgin, Egor and Richtarik, Peter},
+  
+  keywords = {Machine Learning (cs.LG), Optimization and Control (math.OC), Machine Learning (stat.ML), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Mathematics, FOS: Mathematics},
+  
+  title = {SGD: General Analysis and Improved Rates},
+  
+  publisher = {arXiv},
+  
+  year = {2019},
+  
+  copyright = {arXiv.org perpetual, non-exclusive license}
+}
+
+
+@inproceedings{exp-convergence,
+ author = {Roux, Nicolas and Schmidt, Mark and Bach, Francis},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {F. Pereira and C.J. Burges and L. Bottou and K.Q. Weinberger},
+ pages = {},
+ publisher = {Curran Associates, Inc.},
+ title = {A Stochastic Gradient Method with an Exponential Convergence \_Rate for Finite Training Sets},
+ url = {https://proceedings.neurips.cc/paper/2012/file/905056c1ac1dad141560467e0a99e1cf-Paper.pdf},
+ volume = {25},
+ year = {2012}
+}
+
+
+@inproceedings{advances-NIPS,
+ author = {Johnson, Rie and Zhang, Tong},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {C.J. Burges and L. Bottou and M. Welling and Z. Ghahramani and K.Q. Weinberger},
+ pages = {},
+ publisher = {Curran Associates, Inc.},
+ title = {Accelerating Stochastic Gradient Descent using Predictive Variance Reduction},
+ url = {https://proceedings.neurips.cc/paper/2013/file/ac1dd209cbcc5e5d1c6e28598e8cbbe8-Paper.pdf},
+ volume = {26},
+ year = {2013}
+}
+
+
+@misc{unified-sgd,
+  doi = {10.48550/ARXIV.1905.11261},
+  
+  url = {https://arxiv.org/abs/1905.11261},
+  
+  author = {Gorbunov, Eduard and Hanzely, Filip and Richtárik, Peter},
+  
+  keywords = {Optimization and Control (math.OC), Machine Learning (cs.LG), Numerical Analysis (math.NA), FOS: Mathematics, FOS: Mathematics, FOS: Computer and information sciences, FOS: Computer and information sciences},
+  
+  title = {A Unified Theory of SGD: Variance Reduction, Sampling, Quantization and Coordinate Descent},
+  
+  publisher = {arXiv},
+  
+  year = {2019},
+  
+  copyright = {arXiv.org perpetual, non-exclusive license}
+}
+
+
+@misc{one-method,
+  doi = {10.48550/ARXIV.1905.11266},
+  
+  url = {https://arxiv.org/abs/1905.11266},
+  
+  author = {Hanzely, Filip and Richtárik, Peter},
+  
+  keywords = {Optimization and Control (math.OC), Machine Learning (cs.LG), Numerical Analysis (math.NA), FOS: Mathematics, FOS: Mathematics, FOS: Computer and information sciences, FOS: Computer and information sciences},
+  
+  title = {One Method to Rule Them All: Variance Reduction for Data, Parameters and Many New Methods},
+  
+  publisher = {arXiv},
+  
+  year = {2019},
+  
+  copyright = {arXiv.org perpetual, non-exclusive license}
+}
+

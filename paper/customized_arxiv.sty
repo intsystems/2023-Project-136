@@ -3,8 +3,8 @@
 \ProcessOptions\relax
 
 % fonts
-\renewcommand{\rmdefault}{ptm}
-\renewcommand{\sfdefault}{phv}
+\renewcommand{\rmdefault}{cmss}
+\renewcommand{\ttdefault}{cmss}
 
 % set page geometry
 \usepackage[verbose=true,letterpaper]{geometry}
@@ -26,8 +26,8 @@
 
 
 
-\newcommand{\headeright}{A Preprint}
-\newcommand{\undertitle}{A Preprint}
+\newcommand{\headeright}{ }
+\newcommand{\undertitle}{ }
 \newcommand{\shorttitle}{\@title}
 
 \usepackage{fancyhdr}
@@ -48,7 +48,7 @@
 
 % font sizes with reduced leading
 \renewcommand{\normalsize}{%
-  \@setfontsize\normalsize\@xpt\@xipt
+  \@setfontsize\normalsize{14}{16}
   \abovedisplayskip      7\p@ \@plus 2\p@ \@minus 5\p@
   \abovedisplayshortskip \z@ \@plus 3\p@
   \belowdisplayskip      \abovedisplayskip
@@ -56,7 +56,7 @@
 }
 \normalsize
 \renewcommand{\small}{%
-  \@setfontsize\small\@ixpt\@xpt
+  \@setfontsize\small{12}{12}
   \abovedisplayskip      6\p@ \@plus 1.5\p@ \@minus 4\p@
   \abovedisplayshortskip \z@  \@plus 2\p@
   \belowdisplayskip      \abovedisplayskip
@@ -64,12 +64,12 @@
 }
 \renewcommand{\footnotesize}{\@setfontsize\footnotesize\@ixpt\@xpt}
 \renewcommand{\scriptsize}{\@setfontsize\scriptsize\@viipt\@viiipt}
-\renewcommand{\tiny}{\@setfontsize\tiny\@vipt\@viipt}
-\renewcommand{\large}{\@setfontsize\large\@xiipt{14}}
-\renewcommand{\Large}{\@setfontsize\Large\@xivpt{16}}
-\renewcommand{\LARGE}{\@setfontsize\LARGE\@xviipt{20}}
-\renewcommand{\huge}{\@setfontsize\huge\@xxpt{23}}
-\renewcommand{\Huge}{\@setfontsize\Huge\@xxvpt{28}}
+\renewcommand{\tiny}{\@setfontsize\tiny{6}{7}}
+\renewcommand{\large}{\@setfontsize\large{16}{16}}
+\renewcommand{\Large}{\@setfontsize\Large{20}{20}}
+\renewcommand{\LARGE}{\@setfontsize\LARGE{23}{23}}
+\renewcommand{\huge}{\@setfontsize\huge{28}{28}}
+\renewcommand{\Huge}{\@setfontsize\Huge{28}{28}}
 
 % sections with less space
 \providecommand{\section}{}
@@ -77,14 +77,14 @@
   \@startsection{section}{1}{\z@}%
                 {-2.0ex \@plus -0.5ex \@minus -0.2ex}%
                 { 1.5ex \@plus  0.3ex \@minus  0.2ex}%
-                {\large\bf\raggedright}%
+                {\Large\bf\raggedright}%
 }
 \providecommand{\subsection}{}
 \renewcommand{\subsection}{%
   \@startsection{subsection}{2}{\z@}%
                 {-1.8ex \@plus -0.5ex \@minus -0.2ex}%
                 { 0.8ex \@plus  0.2ex}%
-                {\normalsize\bf\raggedright}%
+                {\large\bf\raggedright}%
 }
 \providecommand{\subsubsection}{}
 \renewcommand{\subsubsection}{%
