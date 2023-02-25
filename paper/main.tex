@@ -68,7 +68,7 @@ pdfkeywords={},
 
 \section{Introduction}
 
-	The problem is to minimize the empirical risk which has finite-sum structure \cite{kovalev}:
+	The problem is to minimize the empirical risk which has finite-sum structure \cite{kovalev2019stochastic}:
 	\begin{equation}
 		\underset{x \in \mathbb R^d}{\min} \left[ f(x) \overset{def}{=} \frac{1}{n} \sum \limits_{i=1}^n f_i(x) \right]
 	\end{equation}
@@ -78,13 +78,13 @@ pdfkeywords={},
 	
 	Secondly, there are ways to solve some common problem that arises due to the stochastic nature of the methods. The fact is that stochastic methods provide convergence to a neighbourhood of the solution only \cite{sgd-hogwild, sgd-general-analysis}. Its size is proportional to the variance of the stochastic gradient. So the second advantage of SGD is presence of so-called variance-reduced methods \cite{exp-convergence, advances-NIPS, unified-sgd, one-method}, which mitigate the mentioned effect. However, these methods' computational complexity depends on the curvature of the problem, which is called the condition number and is defined as the ratio of Lipschitzness and strong convexity parameters. \\
 	
-	This leads to usage of second-order methods, such as the Newton method. Taking into account the derivatives of the second order makes it possible to adjust the algorithm's step sizes to the curvature of the problem. Unfortunately, much less literature has been written on this topic than about first-order methods. Some proposed algorithms need extra assumptions or regularization to converge. Some works provide stochastic Newton-type methods, whose computational complexity exceeds such in the variance-reduced SGD variants. \\
+	This leads to usage of second-order methods, such as the Newton method \cite{Nesterov-introductory, Newton-convergence, RSN}. Taking into account the derivatives of the second order makes it possible to adjust the algorithm's step sizes to the curvature of the problem \cite{Nesterov-introductory}. Unfortunately, much less literature has been written on this topic than about first-order methods. Some proposed algorithms need extra assumptions \cite{Newton-convergence, RSN} or regularization \cite{cubic-regularization, randomized-cubic, uniform-convex-cubic} to converge. Some works \cite{proximal-quasi, lbfgs, stoch-bfgs} provide stochastic quasi-Newton methods, whose computational complexity exceeds such in the variance-reduced SGD variants \cite{advances-NIPS}. \\
 	
-	In addition, there are presented many algorithms that need large batch sizes. Particularly, the required batch size is commonly quadratically proportional to the inverse of the desired accuracy. That means that one need to evaluate a large number of $f_i$ Hessians. And this decreases the profit gained by adding randomness into the algorithm, because these batch sizes can become as big as $n$. \\
+	In addition, there are many algorithms presented \cite{sub-sampled, exact-inexact, variance-reduced-Newton, zhang2022adaptive, tripuraneni2018stochastic, zhou2020stochastic}, that need large batch sizes. Particularly, the required batch size is commonly quadratically proportional to the inverse of the desired accuracy. That means that one need to evaluate a large number of $f_i$ Hessians. And this decreases the profit gained by adding randomness into the algorithm, because these batch sizes can become as big as $n$. \\
 	
-	Dmitry Kovalev, Konstantin Mishchenko and Peter Richtarik proposed a simple Stochastic Newton algorithm, which can work with small batches, even with batches of size one. Their algorithm does not provide unbiased estimates but nevertheless shows good convergence. This is achieved by developing new Lyapunov functions that are specific to second-order methods. Our goal is to apply different sampling strategies to this method and explore their performance. \\
+	Dmitry Kovalev, Konstantin Mishchenko and Peter Richtarik proposed \cite{kovalev2019stochastic} a simple Stochastic Newton algorithm, which can work with small batches, even with batches of size one. Their algorithm does not provide unbiased estimates but nevertheless shows good convergence. This is achieved by developing new Lyapunov functions that are specific to second-order methods. Our goal is to apply different sampling strategies to this method and explore their performance. \\
 	
-	The basic set of sampling strategies can be taken from [parallel CDM], where these strategies are applied to the Parallel Coordinate Descent methods. It is also known that so-called Importance Sampling can improve the SGD performance, since it can reduce the stochastic gradient variance. \\
+	The basic set of sampling strategies can be taken from \cite{richtarik2016parallel}, where these strategies are applied to the Parallel Coordinate Descent methods. It is also known that so-called Importance Sampling can improve the SGD performance \cite{https://doi.org/10.48550/arxiv.1401.2753, 9413313}, since it can reduce the stochastic gradient variance. \\
 	
 	
 	

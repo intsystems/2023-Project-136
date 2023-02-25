@@ -120,3 +120,11 @@ logs/
 */mnist
 *.csv
 !.dvc
+
+# Core latex/pdflatex auxiliary files:
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
