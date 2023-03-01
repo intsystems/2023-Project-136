@@ -14,6 +14,12 @@
 \usepackage{natbib}
 \usepackage{doi}
 \usepackage{amsmath, amsfonts, amssymb, amsthm, mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{assumption}
+\newtheorem{assumption}{Assumption}[section]
 
 
 
@@ -69,7 +75,7 @@ pdfkeywords={},
 \section{Introduction}
 
 	The problem is to minimize the empirical risk which has finite-sum structure \cite{kovalev2019stochastic}:
-	\begin{equation}
+	\begin{equation}\label{ERM}
 		\underset{x \in \mathbb R^d}{\min} \left[ f(x) \overset{def}{=} \frac{1}{n} \sum \limits_{i=1}^n f_i(x) \right]
 	\end{equation}
 	where each $f_i$ is assumed to have Lipschitz Hessian. \\
@@ -80,7 +86,65 @@ pdfkeywords={},
 	
 	In practice, various sampling strategies are used for SGD-type algorithms to improve further the performance. One of the most famous sampling mechanisms is so-called Importance Sampling \cite{https://doi.org/10.48550/arxiv.1401.2753, 9413313}. The idea is to compute gradients of the functions that have more impact on the problem. \cite{richtarik2016parallel} studies many other sampling mechanisms. We aim to analyse such strategies, but for Algorithms $1$ and $2$ of \cite{kovalev2019stochastic} to improve the theoretical and practical applications of algorithms. We investigate various sampling strategies supporting them with  rigorously constructed experiments. 
 	
+\section{Problem statement}
+
+	We discuss the problem of empirical risk minimization (ERM). The objective function $f$ (\ref{ERM}) is the average of a big number of functions $f_i$. In fact each $f_i$ is the loss on the $i$-th train data point. For example, this notation can be attributed to linear regression. In this case we try to fit the model's parameter vector $x$ to minimize the mean squared error (MSE) on the train data. \\
 	
+	\subsection{Assumptions}
+	
+	In our work we will assume the functions $f_i$ to satisfy the same regularity conditions that were originally introduced in \cite{kovalev2019stochastic}.
+	
+	
+	\begin{assumption}[Strong convexity] A differentiable function $\phi:\ \mathbb R^d \rightarrow \mathbb R$ is $\mu$-strongly convex, where $\mu > 0$, if $\forall\ x, y \in \mathbb R^d$
+	
+	\begin{equation}\label{strong-conv}
+		\phi(x) \geqslant \phi(y) + \langle \nabla \phi, x - y \rangle + \frac{\mu}{2} \| x - y \|^2,
+	\end{equation}
+	\end{assumption}
+	where the norm $\| \cdot \|$ is Euclidean. For twice differentiable functions this assumption is equivalent to the Hessian having each eigenvalue $\geqslant \mu$.
+	
+	\begin{assumption}[Lipschitz Hessian] A function $\phi: \mathbb R^d \rightarrow R$ has H-Lipschitz Hessian if $\forall\ x, y \in \mathbb R^d$
+	
+	\begin{equation}\label{lip-hess}
+		\| \nabla^2 \phi(x) - \nabla^2 \phi(y) \| \leqslant \| x - y \|
+	\end{equation}
+	\end{assumption}
+
+	\subsection{Sampling}
+	
+	\begin{definition}[Sampling]
+		A random set-valued mapping $\hat S:\ [n] \rightarrow 2^{[n]}$ is called sampling.
+	\end{definition}
+
+	That means that each $S_k \subseteq [n]$ is a realization of $\hat S$. In this case we can call any particular probability distribution on $2^{[n]}$ a sampling strategy.
+	\subsection{Algorithm}
+	
+	We will be applying different sampling strategies for the Algorithm 1 from \cite{kovalev2019stochastic}:
+	
+	\begin{algorithm}
+		\caption{Stochastic Newton (SN)}\label{SN}
+		\begin{algorithmic}
+			\item \textbf{Initialize:} Choose starting iterates $w_1^0, w_2^0, ... w_n^0 \in \mathbb R^d$
+			
+			\item \For {$k = 0, 1, 2, ...$}	
+			
+				$ x^{k+1} = \left[ \frac{1}{n} \sum \limits_{i=1}^n \nabla^2 f_i(w_i^k) \right]^{-1} \left[ \frac{1}{n} \sum \limits_{i=1}^n \nabla^2 f_i(w_i^k) w_i^k - \nabla f_i(w_i^k) \right] $
+				
+				Choose a subset $S^k \subseteq \{ 1, 2, ..., n \}$ with one of the sampling strategies
+				
+				$w_i^{k+1} = 
+				\begin{cases}
+					x^{k+1} & i \in S^k \\
+					w_i^k & i \notin S^k
+				\end{cases}$
+				
+			\item \EndFor
+		\end{algorithmic}
+	\end{algorithm}
+
+	\subsection{Goal of the project}
+	
+	We aim to explore different sampling strategies for the Algorithm \ref{SN} in order to obtain practical improvements and their theoretical explainations.
 	
 % references title
 \renewcommand\refname{References}	
