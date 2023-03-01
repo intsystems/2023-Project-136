@@ -88,11 +88,11 @@ pdfkeywords={},
 	
 \section{Problem statement}
 
-	We discuss the problem of empirical risk minimization (ERM). The objective function $f$ (\ref{ERM}) is the average of a big number of functions $f_i$. In fact each $f_i$ is the loss on the $i$-th train data point. For example, this notation can be attributed to linear regression. In this case we try to fit the model's parameter vector $x$ to minimize the mean squared error (MSE) on the train data. \\
+	We consider classical empirical risk minimization (ERM) which typically arises in many machine learning problems to train a model. The objective function $f$ (\ref{ERM}) is an average of a big number of functions $f_i$, where $f_i$ represents a loss on the $i$-th train data point. For example, this notation can be attributed to linear regression. In this case the goal is to find optimal model parameters $x$ that minimize the mean squared error (MSE) on the train data. \\
 	
 	\subsection{Assumptions}
 	
-	In our work we will assume the functions $f_i$ to satisfy the same regularity conditions that were originally introduced in \cite{kovalev2019stochastic}.
+	We make standard assumptions on functions $f_i$; the same that were originally takei into account in \cite{kovalev2019stochastic}.
 	
 	
 	\begin{assumption}[Strong convexity] A differentiable function $\phi:\ \mathbb R^d \rightarrow \mathbb R$ is $\mu$-strongly convex, where $\mu > 0$, if $\forall\ x, y \in \mathbb R^d$
@@ -119,7 +119,7 @@ pdfkeywords={},
 	That means that each $S_k \subseteq [n]$ is a realization of $\hat S$. In this case we can call any particular probability distribution on $2^{[n]}$ a sampling strategy.
 	\subsection{Algorithm}
 	
-	We will be applying different sampling strategies for the Algorithm 1 from \cite{kovalev2019stochastic}:
+	We apply different sampling strategies on top of the Algorithm 1 from \cite{kovalev2019stochastic}:
 	
 	\begin{algorithm}
 		\caption{Stochastic Newton (SN)}\label{SN}
@@ -144,7 +144,7 @@ pdfkeywords={},
 
 	\subsection{Goal of the project}
 	
-	We aim to explore different sampling strategies for the Algorithm \ref{SN} in order to obtain practical improvements and their theoretical explainations.
+	We aim to explore different sampling strategies for the Algorithm \ref{SN} proving convergence guarantees and showing practical improvements over the baseline strategy.
 	
 % references title
 \renewcommand\refname{References}	
