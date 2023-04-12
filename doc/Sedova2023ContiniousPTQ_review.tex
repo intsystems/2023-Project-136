@@ -1,0 +1,69 @@
+\documentclass[DIV=16]{scrartcl}
+
+\usepackage[english, russian]{babel}
+
+\pagestyle{empty}
+
+% fonts
+\renewcommand{\rmdefault}{cmss}
+\renewcommand{\ttdefault}{cmss}
+
+\pagestyle{empty}
+
+\begin{document}
+	
+	\begin{LARGE}
+	\begin{center}
+		Рецензия на рукопись \\
+		Flexible continuous modification for SOTA \\
+		post training quantization methods \\
+		Автор Седова Анна
+	\end{center}
+	\end{LARGE}
+
+	\textit{\textbf{Список неточностей, опечаток:}}
+
+	\textit{Аннотация}
+	
+	Строка 1 - возможно, стоит заменить "resource constrained" $\rightarrow$ "resource-constrained".
+	
+	Строка 5 - "accuracy of model" $\rightarrow$ "accuracy of the model"
+	
+	\textbf{1. Вступление}
+	
+	Строка 2 - после (PTQ), видимо, опечатка - стоит слово "pos".
+	
+	\textbf{2. Постановка задачи}
+	
+	Стоит пронумеровать формулы
+	
+	Стоит пояснить обозначение скобок в выражении $\lfloor\frac{v}{\alpha}\rceil$ в первой формуле
+	
+	\textbf{3. Quantization modification}
+	
+	3 абзац, 2 строчка - не нужна запятая в "more, than"
+	
+	3.4, 1 абзац, 1 строка - видимо, пропущено слово "highest": "we denote the weight as $w_p$, and the lowest as $w_n$"
+	
+	3.4 Немного неровно отображается формула 1
+	
+	\textbf{4. Experiments}
+	
+	1 абзац, строка 1. "conduct two experiments to conduct the effectiveness" $\rightarrow$ "сonduct two experiments to estimate the effectiveness" 
+	
+	4.2 В таблице не отображаются значения в ячейках \\
+	
+	\textbf{\textit{Доработать:}}
+	
+	Исправить опечатки, дописать заключение \\
+	
+	\textbf{\textit{Комментарий о работе в целом}}
+	
+	Работу легко и приятно читать, присутствует четкая постановка задачи, цель работы. Методы и их преимущества описаны понятным языком. Возможно, для большей целостности работы стоит добавить больше ссылок между частями статьи, например, в секции со сравнением качества методов - на их описания \\
+	
+	Рецензент:
+	
+	Швейкин Денис
+	
+	
+\end{document}
