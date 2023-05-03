@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as sps
 
 from IPython.display import clear_output
 
 
 exp_border = 20  # Для численной стабильности логитов - обрезаем больших числа до 20, чтобы не подавать их в экспоненту
+# For numerical stability
 
 
 def logistic(x, A, b):
@@ -33,10 +35,8 @@ class DeterministicNewtonLogReg:
         self.initialize_derivatives()
 
         self.loss_history = [self.calculate_loss(), ]
-        self.x_norms = []
-        self.grad_norms = []
-        self.hess_norms = []
         self.iterations = 0  # Количество сделаннных итераций (к текущему моменту)
+        # Current number of iterations done
 
     def run(self, n_iterations=20, plot_loss=True, plot_norms=False, **kwargs):
         for it_num in range(n_iterations):
@@ -44,8 +44,6 @@ class DeterministicNewtonLogReg:
             self.update_loss()
             if plot_loss:
                 self.plot_loss(**kwargs)
-            elif plot_norms:
-                self.plot_norms(**kwargs)
             self.iterations += 1
         return self
 
@@ -62,9 +60,6 @@ class DeterministicNewtonLogReg:
 
     def update_loss(self):
         self.loss_history.append(self.calculate_loss())
-        self.x_norms.append(np.linalg.norm(self.x))
-        self.grad_norms.append(np.linalg.norm(self.grad))
-        self.hess_norms.append(np.linalg.norm(self.hessian))
         return None
 
     def initialize_derivatives(self):
@@ -106,18 +101,6 @@ class DeterministicNewtonLogReg:
         plt.legend()
         plt.show()
 
-    def plot_norms(self, yscale='log'):
-        clear_output(wait=True)
-        plt.plot(self.x_norms, label='x norm')
-        plt.plot(self.grad_norms, label='grad norm')
-        plt.plot(self.hess_norms, label='hess norm')
-        plt.title('Norms history')
-        plt.xlabel('Number of iterations')
-        plt.ylabel('Norms')
-        plt.yscale(yscale)
-        plt.legend()
-        plt.show()
-
 
 class StochasticNewtonLogReg:
     def __init__(self, A, b, l2=0, initialization=None, opt_value=None, opt_x=None):
@@ -146,12 +129,10 @@ class StochasticNewtonLogReg:
 
         self.loss_history = [self.calculate_loss(), ]
         self.dist_history = [self.calculate_dist(), ]
-        self.x_norms = []
-        self.grads_norms = []
-        self.hess_norms = []
         self.iterations = 0  # Количество сделаннных итераций (к текущему моменту)
+        # Current number of iterations done
 
-    def run(self, n_iterations=1000, batch_size=1, plot_loss=True, plot_norms=False, **kwargs):
+    def run(self, n_iterations=1000, batch_size=1, plot_loss=True, **kwargs):
         self.batch_size = batch_size
         for it_num in range(n_iterations):
             self.step(**kwargs)
@@ -161,8 +142,6 @@ class StochasticNewtonLogReg:
                     self.W = np.repeat(self.opt_x[None, :], self.n_obj, axis=0)
             if plot_loss:
                 self.plot_loss(**kwargs)
-            elif plot_norms:
-                self.plot_norms(**kwargs)
             self.iterations += 1
         return self
 
@@ -171,7 +150,8 @@ class StochasticNewtonLogReg:
                                  np.mean((self.hessians @ self.W[:, :, None]).squeeze() -
                                          self.grads, axis=0))
         idxs_to_update = self.make_batch_idxs(self.batch_size, **kwargs)
-        self.W[idxs_to_update] = np.repeat(self.x[None, :], self.batch_size, axis=0)
+        actual_batch_size = idxs_to_update.shape[0]
+        self.W[idxs_to_update] = np.repeat(self.x[None, :], actual_batch_size, axis=0)
         self.update_grads(idxs_to_update)
         self.update_hessians(idxs_to_update)
         return None
@@ -192,21 +172,35 @@ class StochasticNewtonLogReg:
     def update_loss(self):
         self.loss_history.append(self.calculate_loss())
         self.dist_history.append(self.calculate_dist())
-        self.x_norms.append(np.linalg.norm(self.x))
-        self.grads_norms.append(np.linalg.norm(np.mean(self.grads, axis=0)))
-        self.hess_norms.append(np.linalg.norm(np.mean(self.hessians, axis=0)))
         return None
 
-    def make_batch_idxs(self, batch_size=1, strategy='nice', **kwargs):
+    def make_batch_idxs(self, batch_size=1, strategy='nice', tau_bin_p=1, **kwargs):
         idxs = None
         if strategy == 'nice':
             idxs = np.random.choice(self.n_obj, size=batch_size, replace=False)
+        elif strategy == 'tau-ind':
+            idxs = np.random.choice(self.n_obj, size=batch_size, replace=True)
+        elif strategy == 'tau-bin':
+            actual_batch_size = sps.binom.rvs(batch_size, tau_bin_p)
+            idxs = np.random.choice(self.n_obj, size=actual_batch_size, replace=False)
         elif strategy == 'imp-grad':
             p = self.grads_lipschitzness / np.sum(self.grads_lipschitzness)
             idxs = np.random.choice(self.n_obj, size=batch_size, p=p)
         elif strategy == 'imp-hess':
             p = self.hessians_lipschitzness / np.sum(self.hessians_lipschitzness)
             idxs = np.random.choice(self.n_obj, size=batch_size, p=p)
+        elif strategy == 'inv-imp-grad':
+            p = 1/self.grads_lipschitzness / np.sum(1/self.grads_lipschitzness)
+            idxs = np.random.choice(self.n_obj, size=batch_size, p=p)
+        elif strategy == 'inv-imp-hess':
+            p = 1/self.hessians_lipschitzness / np.sum(1/self.hessians_lipschitzness)
+            idxs = np.random.choice(self.n_obj, size=batch_size, p=p)
+        elif strategy == 'consec':
+            if self.iterations == 0:
+                self.order = np.random.permutation(self.n_obj)
+            start = (self.iterations * batch_size) % self.n_obj
+            finish = np.min((start + batch_size, self.n_obj))
+            idxs = self.order[start:finish]
         return idxs
 
     def initialize_derivatives(self):
@@ -216,7 +210,7 @@ class StochasticNewtonLogReg:
 
     def update_grads(self, idxs=None):
         if idxs is None:
-            idxs = range(self.n_obj)
+            idxs = np.arange(self.n_obj)
         logits = (self.A[idxs, None, :] @ self.W[idxs, :, None]).squeeze()
         logits = np.clip(logits, -exp_border, exp_border)
         self.grads[idxs] = self.A[idxs] * (-self.b[idxs] / (1 + np.exp(self.b[idxs] * logits)))[:, None]
@@ -225,14 +219,15 @@ class StochasticNewtonLogReg:
 
     def update_hessians(self, idxs=None):
         if idxs is None:
-            idxs = range(self.n_obj)
+            idxs = np.arange(self.n_obj)
         logits = (self.A[idxs, None, :] @ self.W[idxs, :, None]).squeeze()
         logits = np.clip(logits, -exp_border, exp_border)
         self.hessians[idxs] = self.A[idxs, :, None] @ self.A[idxs, None, :] * \
                               (np.exp(self.b[idxs] * logits) /
                                (1 + np.exp(self.b[idxs] * logits)) /
                                (1 + np.exp(self.b[idxs] * logits))).reshape(-1, 1, 1)
-        self.hessians[idxs] += np.repeat(self.l2 * np.eye(self.dim)[None, :, :], self.batch_size, axis=0)
+        actual_batch_size = idxs.shape[0]
+        self.hessians[idxs] += np.repeat(self.l2 * np.eye(self.dim)[None, :, :], actual_batch_size, axis=0)
         return self.hessians
 
     def plot_loss(self, yscale='log', plot_dist=True, **kwargs):
@@ -253,107 +248,6 @@ class StochasticNewtonLogReg:
                 plt.title('Loss history')
                 plt.xlabel('Number of iterations')
                 plt.ylabel('Loss')
-            plt.yscale(yscale)
-            plt.legend()
-            plt.show()
-
-    def plot_norms(self, yscale='log', **kwargs):
-        if self.iterations % (self.n_obj // self.batch_size) == 0:
-            clear_output(wait=True)
-            plt.plot(self.x_norms, label='x norm')
-            plt.plot(self.grads_norms, label='grads norm')
-            plt.plot(self.hess_norms, label='hess norm')
-            plt.title('Norms history')
-            plt.xlabel('Number of iterations')
-            plt.ylabel('Norms')
-            plt.yscale(yscale)
-            plt.legend()
-            plt.show()
-
-
-# Не используется
-class DeterministicGDLogReg:
-    def __init__(self, A, b, l2=0, initialization=None):
-
-        self.A = A
-        self.b = b
-        self.l2 = l2
-        self.n_obj, self.dim = self.A.shape
-
-        if initialization is not None:
-            self.x = initialization
-        else:
-            self.x = np.zeros(self.dim)
-
-        self.grad = np.zeros(self.dim)
-        self.initialize_derivatives()
-
-        self.lr = 1e-2
-
-        self.loss_history = [self.calculate_loss(), ]
-        self.x_norms = []  # Для отладки
-        self.grad_norms = []  # Для отладки
-        self.iterations = 0
-
-    def run(self, n_iterations=10000, lr=None, plot_loss=True, plot_norms=False, **kwargs):
-        if lr is not None:
-            self.lr = lr
-        for it_num in range(n_iterations):
-            self.step()
-            self.update_loss()
-            if plot_loss:
-                self.plot_loss(**kwargs)
-            elif plot_norms:  # Для отладки
-                self.plot_norms(**kwargs)
-            self.iterations += 1
-        return self
-
-    def step(self):
-        self.x -= self.lr * self.grad
-        self.update_grad()
-        return None
-
-    def calculate_loss(self):
-        loss = logistic(self.x, self.A, self.b)
-        loss += (self.l2 / 2) * np.linalg.norm(self.x)**2
-        return loss
-
-    def update_loss(self):
-        self.loss_history.append(self.calculate_loss())
-        self.x_norms.append(np.linalg.norm(self.x))
-        self.grad_norms.append(np.linalg.norm(self.grad))
-        return None
-
-    def initialize_derivatives(self):
-        self.update_grad()
-        return self
-
-    def update_grad(self):
-        logits = self.A @ self.x
-        logits = np.clip(logits, -exp_border, exp_border)
-        self.grad = np.mean(self.A * (-self.b / (1 + np.exp(self.b * logits)))[:, None], axis=0)
-        self.grad += self.l2 * self.x
-        return self.grad
-
-    def plot_loss(self, yscale='linear'):
-        if self.iterations % 100 == 0:
-            clear_output(wait=True)
-            plt.plot(self.loss_history, label='loss')
-            plt.title('Loss history')
-            plt.xlabel('Number of iterations')
-            plt.ylabel('Loss')
-            plt.yscale(yscale)
-            plt.legend()
-            plt.show()
-
-    def plot_norms(self, yscale='log'):  # Для отладки
-        if self.iterations % 100 == 0:
-            clear_output(wait=True)
-            plt.plot(self.x_norms, label='x norm')
-            plt.plot(self.grad_norms, label='grad norm')
-            plt.title('Norms history')
-            plt.xlabel('Number of iterations')
-            plt.ylabel('Norms')
             plt.yscale(yscale)
             plt.legend()
             plt.show()
