@@ -89,7 +89,7 @@ pdfkeywords={},
 	
 	This is a place where second-order methods such as the Newton method \cite{Nesterov-introductory, Newton-convergence, RSN} come to play. Taking into account second-order derivatives it possible to adjust the algorithm's step sizes to the curvature of the problem \cite{Nesterov-introductory}. Unfortunately, much less work has been done in the direction of stochastic Newton-type methods. Many methods \cite{sub-sampled, exact-inexact, variance-reduced-Newton, zhang2022adaptive, tripuraneni2018stochastic, zhou2020stochastic} require large batch sizes. In particular, the required batch size is commonly quadratically proportional to the inverse of the desired accuracy. That means that one need to evaluate a large number of $f_i$ Hessians which sometimes can be much larger than $n$. \cite{kovalev2019stochastic} proposes a simple Stochastic Newton algorithm, which can work with batches of any size. This algorithm achieves local linear and in come cases super-linear convergence rates. 
 	
-	In practice, various sampling strategies are used for SGD-type algorithms to improve further the performance. One of the most famous sampling mechanisms is so-called Importance Sampling \cite{gower2019sgd, https://doi.org/10.48550/arxiv.1401.2753, 9413313}. The idea is to compute gradients of the functions that have more impact on the problem. Another method of random optimization is Random Reshuffling, which does iterative gradient steps passing reshuffled data \cite{mishchenko2020random}. \cite{richtarik2016parallel} studies many other sampling mechanisms. We analyse such strategies, but for the Algorithms $1$ of \cite{kovalev2019stochastic}, to improve the theoretical and practical applications of the algorithms. We explore various sampling strategies supporting them with  rigorously constructed experiments. 
+	In practice, various sampling strategies are used for SGD-type algorithms to improve further the performance. One of the most famous sampling mechanisms is so-called Importance Sampling \cite{gower2019sgd, https://doi.org/10.48550/arxiv.1401.2753, 9413313}. The idea is to compute gradients of the functions that have more impact on the problem. Another method of random optimization is Random Reshuffling, which does iterative gradient steps passing reshuffled data \cite{mishchenko2020random}. \cite{richtarik2016parallel} studies many other sampling mechanisms. We analyse such strategies, but for the Algorithms $1$ of \cite{kovalev2019stochastic}, to improve the theoretical and practical applications of the algorithm. We explore various sampling strategies supporting them with  rigorously constructed experiments. 
 	
 \section{Problem statement}
 
@@ -188,7 +188,7 @@ pdfkeywords={},
 	Then follows the theorem, which estimates the convergence rate of the Algorithm \ref{SN} with $\tau$-nice sampling.
 	
 	\begin{theorem} \label{theorem:1}
-		Assume that every $f_i$ is $\mu$-strongly convex and has $H$-Lipschitz Hessians. Then for the random iterates of the Algorithm 1 we have the recursion
+		Assume that every $f_i$ is $\mu$-strongly convex and has $H$-Lipschitz Hessians. Then for the random iterates of the Algorithm \ref{SN} we have the recursion
 		\begin{equation}
 			\mathbb E_k[\mathcal W^{k+1}] \leqslant \left( 1 - \frac{\tau}{n} + \frac{\tau}{n} \left( \frac{H}{2\mu} \right)^2 \mathcal W^k \right) \mathcal W^k.
 		\end{equation}
@@ -308,7 +308,7 @@ pdfkeywords={},
 			0 \leqslant p_i \leqslant 1\ \forall i
 			\end{cases}
 		\end{equation}
-		The solution to this Linear Programming problem is the vertex of the polyhedron defined by the constraints (\ref{polyhedron}). The optimal vertex has the maximum projection of its coordinate vector $(p_1, ..., p_n)^\top$ on the vector $(\|w_i - x^*\|^2, ..., \|w_n - x^*\|^2)$. That is the vertex, which coefficients corresponding to the biggest $\|w_i - x^*\|^2$ are set to 1, corresponding to the smallest $\|w_i - x^*\|^2$ are set to 0, and one coordinate is intermediate if $\tau$ is not an integer.
+		The solution to this Linear Programming problem is the vertex of the polyhedron defined by the constraints (\ref{polyhedron}). The optimal vertex has the maximum projection of its coordinate vector $(p_1, ..., p_n)^\top$ on the vector $(\|w_i - x^*\|^2, ..., \|w_n - x^*\|^2)$. That is the vertex, whose coefficients corresponding to the biggest $\|w_i - x^*\|^2$ are set to 1, corresponding to the smallest $\|w_i - x^*\|^2$ are set to 0, and one coordinate is intermediate if $\tau$ is not an integer.
 	\end{proof}
 
 	In this way, we can see that it is sensible to update those parameter vectors $w_i^k$, which have not been updated recently. It means that an optimal independent strategy can be "approximated" by the consecutive strategy. This proposition is illustrated in the experiments section (\ref{fig:3}).
@@ -338,7 +338,7 @@ pdfkeywords={},
 		\includegraphics[width=\textwidth]{importance sampling}
 		\caption{Comparison of the $\tau$-nice and the Importance Sampling}
 	\end{figure}
-	We apply both Important Sampling strategies based on Hessians and gradients Lipschitzness parameters. Those are $L_i = \frac{1}{4}\|a_i\|^2$ and $H_i = \frac{1}{10} \|a_i\|^3$ for the logistic regression problem. It is clear that for the considered problem the Importance Sampling used with the Algorithm \ref{SN} does not bring practical improvements.
+	We apply both Important Sampling strategies based on Hessians and gradients Lipschitzness parameters. Those are $H_i = \frac{1}{10} \|a_i\|^3$ and $L_i = \frac{1}{4}\|a_i\|^2$ for the logistic regression problem. It is clear that for the considered problem the Importance Sampling used with the Algorithm \ref{SN} does not bring practical improvements.
 	
 	\subsection{Consecutive strategy}
 	\begin{figure}[h!]\label{fig:3}

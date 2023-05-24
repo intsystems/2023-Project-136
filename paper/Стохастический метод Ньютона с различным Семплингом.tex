@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage{customized_arxiv}
+\usepackage{customized_arxiv_ru}
 
 \usepackage[utf8]{inputenc}
 \usepackage[english, russian]{babel}
@@ -17,15 +17,15 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \theoremstyle{definition}
-\newtheorem{definition}{Definition}
+\newtheorem{definition}{Определение}
 \theoremstyle{assumption}
-\newtheorem{assumption}{Assumption}
+\newtheorem{assumption}{Предположение}
 \theoremstyle{lemma}
-\newtheorem{lemma}{Lemma}
+\newtheorem{lemma}{Лемма}
 \theoremstyle{theorem}
-\newtheorem{theorem}{Theorem}
+\newtheorem{theorem}{Теорема}
 \theoremstyle{proposition}
-\newtheorem{proposition}{Proposition}
+\newtheorem{proposition}{Предложение}
 
 
 \title{Стохастический метод Ньютона с различным семплингом}
@@ -76,65 +76,67 @@
 	
 	\keywords{Стохастический метод Ньютона, стратегии семплинга}
 	
-	\section{Introduction}
+	\section{Вступление}
 	
-	The problem is to minimize the empirical risk which has finite-sum structure \cite{kovalev2019stochastic}:
+	Задача состоит в минимизации функции эмпирического риска, который имеет форму конечной суммы \cite{kovalev2019stochastic}:
 	\begin{equation}\label{ERM}
 		\underset{x \in \mathbb R^d}{\min} \left[ f(x) \overset{def}{=} \frac{1}{n} \sum \limits_{i=1}^n f_i(x) \right],
 	\end{equation}
-	where each $f_i$ is assumed to have Lipschitz Hessian. 
+	где каждая $f_i$ предполагается имеющей липшицев гессиан. 
 	
-	Typically, $n$ - the total number of functions - is very large for modern real-world problems. Thus, the stochastic approach is used because it is computationally difficult to evaluate the gradient of all $f_i$ at each step. The Stochastic Gradient Descent (SGD) method \cite{SGD-1} calculates the gradients of some randomly chosen $f_i$ which leads to cheaper computation per-iteration cost compared to the vanilla Gradient Descent (GD). The analysis of SGD and its modifications is rich and well explored. Firstly, the theory of SGD-type methods does not restrict the batch size. Therefore, these algorithms can be applied even with small batches. It is known that simple SGD converges only to a neighbourhood of the solution only \cite{sgd-hogwild, sgd-general-analysis} whose size is proportional to the variance of the stochastic gradient. However, there are techniques (also known as variance reduction) to solve this issue. These techniques \cite{exp-convergence, advances-NIPS, unified-sgd, one-method} modify the update rule of vanilla SGD which allows to mitigate the aforementioned effect without changing per-iteration cost. However, the main disadvantage of all gradient-type methods is that a computation complexity depends on the curvature of the problem, which is called the condition number and is defined as the ratio of Lipschitzness and strong convexity parameters. 
+	Как правило, $n$ - общее количество функций - в современных задачах является очень большим числом. Поэтому в виду вычислительное сложности оценки градиента всех $f_i$ на каждом шаге используется стохастический подход. Стохастический градиентный спуск (SGD) \cite{SGD-1} вычисляет градиенты некоторых случайно выбранных $f_i$, что ведет к более вычислительно дешевым итерациям, по сравнению с традиционным градиентным спуском (GD). Метод SGD и его вариации довольно хорошо изучены. Можно отметить следующие плюсы данного метода. Во-первых, теория методов типа SGD не использует ограничений на размер батчей. Поэтому такие алгоритмы могут приниматься даже с малыми размерами батчей. Известно, что простой SGD дает сходимость только к некоторой окрестности оптимума \cite{sgd-hogwild, sgd-general-analysis}. Тем не менее, есть техники (также известные как редукция дисперсии), разрешающие эту проблему. Эти техники \cite{exp-convergence, advances-NIPS, unified-sgd, one-method} модифицируют шаг SGD, что позволяет избавиться от вышеупомянутого эффекта, не меняя вычислительной сложности итерации. Однако главный недостаток всех градиентных методов состоит в том, что вычислительная сложность зависит от кривизны задачи, которая определяется как отношение константы Липшица и параметра сильной выпуклости, и называется числом обусловленности.
 	
-	This is a place where second-order methods such as the Newton method \cite{Nesterov-introductory, Newton-convergence, RSN} come to play. Taking into account second-order derivatives it possible to adjust the algorithm's step sizes to the curvature of the problem \cite{Nesterov-introductory}. Unfortunately, much less work has been done in the direction of stochastic Newton-type methods. Many methods \cite{sub-sampled, exact-inexact, variance-reduced-Newton, zhang2022adaptive, tripuraneni2018stochastic, zhou2020stochastic} require large batch sizes. In particular, the required batch size is commonly quadratically proportional to the inverse of the desired accuracy. That means that one need to evaluate a large number of $f_i$ Hessians which sometimes can be much larger than $n$. \cite{kovalev2019stochastic} proposes a simple Stochastic Newton algorithm, which can work with batches of any size. This algorithm achieves local linear and in come cases super-linear convergence rates. 
+	Здесь в дело вступают методы второго порядка типа Ньютон \cite{Nesterov-introductory, Newton-convergence, RSN}. Учитывая производные второго порядка, становится возможно адаптировать шаг алгоритма под кривизну задачи \cite{Nesterov-introductory}. К сожалению, намного меньше работы было проведено в направлении стохастических методов типа Ньютон. Многие методы \cite{sub-sampled, exact-inexact, variance-reduced-Newton, zhang2022adaptive, tripuraneni2018stochastic, zhou2020stochastic}. нуждаются в использовании батчей больших размеров. В частности, зачастую необходимый размер батча обратно-квадратично пропорционален желаемой точности. Это значит, что нужно считать гессианы от большого количества $f_i$, которое может иногда даже превышать $n$. \cite{kovalev2019stochastic} предлагает простой стохастический метод Ньютона, который может работать с батчами любого размера. Алгоритм достигает локальной линейной сходимости, а в некоторых случаях - сверхлинейной. 
 	
-	In practice, various sampling strategies are used for SGD-type algorithms to improve further the performance. One of the most famous sampling mechanisms is so-called Importance Sampling \cite{gower2019sgd, https://doi.org/10.48550/arxiv.1401.2753, 9413313}. The idea is to compute gradients of the functions that have more impact on the problem. Another method of random optimization is Random Reshuffling, which does iterative gradient steps passing reshuffled data \cite{mishchenko2020random}. \cite{richtarik2016parallel} studies many other sampling mechanisms. We analyse such strategies, but for the Algorithms $1$ of \cite{kovalev2019stochastic}, to improve the theoretical and practical applications of the algorithms. We explore various sampling strategies supporting them with  rigorously constructed experiments. 
+	На практике для алгоритмов типа SGD используются различные стратегии семплинга, улучшающие их качество. Одним из наиболее известных механизмов семплинга является так называемый Importance Sampling (ИС) \cite{gower2019sgd, https://doi.org/10.48550/arxiv.1401.2753, 9413313}. Идея состоит в том, чтобы вычислять градиенты от тех функций, которые вносят наибольший вкладв задачу. Другой метод рандомизированной оптимизации - Random Reshuffling, который делает градиентные шаги, проходясь подряд по случайно перемешанным данным \cite{mishchenko2020random}.
+	 \cite{richtarik2016parallel} изучает множество других механизмов семплинга. Мы анализируем эти стратегии, но применительно к Алгоритму 1 из \cite{kovalev2019stochastic}, чтобы получить теоретический и практические улучшения. Мы исследуем различные стратегии семплинга, подкрепляя их строго поставленными экспериментами.
+	 
+	\section{Постановка задачи}
 	
-	\section{Problem statement}
+	Мы рассматриваем классическую задачу минимизации функции эмпирического риска (ERM), которая типично возникает во многих задачах машинного обучения в контексте обучения модели. Целевая функция $f$ (\ref{ERM}) является средним от большого количества функций $f_i$, где каждая $f_i$ представляет собой функцию потерь на $i$-том тренировочном объекте. Например, эта нотация может быть применена к линейной регрессии. В данном случае задача состоит в нахождении оптимального вектора параметров $x$, который минимизирует среднеквадратическую ошибку (MSE) на обучающей выборке.
 	
-	We consider classical empirical risk minimization (ERM) which typically arises in many machine learning problems to train a model. The objective function $f$ (\ref{ERM}) is an average of a large number of functions $f_i$, where $f_i$ represents a loss on the $i$-th train data point. For example, this notation can be attributed to linear regression. In this case the goal is to find optimal model parameters $x$ that minimize the mean squared error (MSE) on the train data.
+	\subsection{Предположения}
 	
-	\subsection{Assumptions}
-	
-	We make standard assumptions on functions $f_i$; the same that were originally taken into account in \cite{kovalev2019stochastic}.
+	Мы делаем стандартные предположения на функции $f_i$; те же, что были приняты в  \cite{kovalev2019stochastic}.
 	
 	
-	\begin{assumption}[Strong convexity] A differentiable function $\phi:\ \mathbb R^d \rightarrow \mathbb R$ is $\mu$-strongly convex, where $\mu > 0$, if $\forall\ x, y \in \mathbb R^d$
+	\begin{assumption}[Сильная выпуклость] Дифференцируемая функция $\phi:\ \mathbb R^d \rightarrow \mathbb R$ называется $\mu$-сильно выпуклой, где $\mu > 0$, если $\forall\ x, y \in \mathbb R^d$
 		
 		\begin{equation}\label{strong-conv}
 			\phi(x) \geqslant \phi(y) + \langle \nabla \phi, x - y \rangle + \frac{\mu}{2} \| x - y \|^2,
 		\end{equation}
 	\end{assumption}
-	where the norm $\| \cdot \|$ is Euclidean. For twice differentiable functions this assumption is equivalent to the Hessian having each eigenvalue $\geqslant \mu$.
+	где норма $\| \cdot \|$ - евклидова. Для дважды дифференцируемых функций данное предположение равносильно тому, что все собственные значения гессиана $\geqslant \mu$.
 	
-	\begin{assumption}[Lipschitz Hessian] A function $\phi: \mathbb R^d \rightarrow R$ has $H$-Lipschitz Hessian if $\forall\ x, y \in \mathbb R^d$
+	\begin{assumption}[Липшицевы гессианы] Функция $\phi: \mathbb R^d \rightarrow R$ обладает $H$-липшицевым гессианом, если $\forall\ x, y \in \mathbb R^d$
 		
 		\begin{equation}\label{lip-hess}
 			\| \nabla^2 \phi(x) - \nabla^2 \phi(y) \| \leqslant H \| x - y \|
 		\end{equation}
 	\end{assumption}
 	
-	\subsection{Sampling}
+	\subsection{Семплинг}
 	
-	\begin{definition}[Sampling]
-		A random set-valued mapping $\hat S:\ [n] \rightarrow 2^{[n]}$ is called sampling.
+	\begin{definition}[Семплинг]
+		Случайное множественнозначное отображение $\hat S:\ [n] \rightarrow 2^{[n]}$ называется семплингом.
 	\end{definition}
 	
-	That means that each $S_k \subseteq [n]$ is a realization of $\hat S$. In this case we can call any probability distribution on $2^{[n]}$ a sampling strategy.
-	\subsection{Algorithm}
+	Это значит, что каждое $S_k \subseteq [n]$ является реализацией $\hat S$. В таком лсучае мы можем назвать любое вероятностное распределение на $2^{[n]}$ стратегией семплинга.
 	
-	We apply different sampling strategies on top of the Algorithm 1 from \cite{kovalev2019stochastic}:
+	\subsection{Алгоритм}
+	
+	Мы применяем различные стратегии семплинга поверх Алгоритма 1 из \cite{kovalev2019stochastic}:
 	
 	\begin{algorithm}
-		\caption{Stochastic Newton (SN)}\label{SN}
+		\caption{Стохастический метод Ньютона (SN)}\label{SN}
 		\begin{algorithmic}
-			\item \textbf{Initialize:} Choose starting iterates $w_1^0, w_2^0, ... w_n^0 \in \mathbb R^d$
+			\item \textbf{Инициализация:} Выбрать начальные приближения $w_1^0, w_2^0, ... w_n^0 \in \mathbb R^d$
 			
 			\item \For {$k = 0, 1, 2, ...$}	
 			
 			$ x^{k+1} = \left[ \frac{1}{n} \sum \limits_{i=1}^n \nabla^2 f_i(w_i^k) \right]^{-1} \left[ \frac{1}{n} \sum \limits_{i=1}^n \nabla^2 f_i(w_i^k) w_i^k - \nabla f_i(w_i^k) \right] $
 			
-			Choose a subset $S^k \subseteq \{ 1, 2, ..., n \}$ with one of the sampling strategies
+			Выбрать подмножество $S^k \subseteq \{ 1, 2, ..., n \}$ одной из стратегий семплинга
 			
 			$w_i^{k+1} = 
 			\begin{cases}
@@ -146,79 +148,79 @@
 		\end{algorithmic}
 	\end{algorithm}
 	
-	\subsection{Goal of the project}
+	\subsection{Цель проекта}
 	
-	We compare different sampling strategies for the Algorithm \ref{SN} proving convergence guarantees and showing practical improvements over the baseline strategy.
+	Мы сравниваем различные стратегии семплинга для Алгоритма \ref{SN}, доказывая гарантии сходимости и показывая практические улучшения по сравнению с базовым подходом.
 	
 	
-	\section{Theory}	
+	\section{Теория}	
 	
-	\subsection{Proofs for the Algorithm}
+	\subsection{Доказательство Алгоритма}
 	
-	The convergence of the Algorithm \ref{SN} was clearly described and proven in \cite{kovalev2019stochastic}. Firstly, we look at the statements of three lemmas from the aforementioned article.
+	Сходимость Алгоритма \ref{SN} была подробно описана и доказана в \cite{kovalev2019stochastic}. Для начала, обратимся к утверждениям трех лемм из данной статьи.
 	
 	\begin{lemma}\label{lemma:1}
-		Let $f_i$ be $\mu$-strongly convex and have $H$-Lipschitz Hessian for all $i = 1,...,n$ and consider the following Lyapunov function
+		Пусть $f_i$ - $\mu$-сильна выпукла и имеет $H$-липшицев гессиан для всех $i = 1,...,n$. Рассмотрим следующую функцию Ляпунова
 		\begin{equation}
 			\mathcal W^k \overset{\text{def}} = \frac{1}{n} \sum \limits_{i=1}^n \| w_i^k - x^* \|^2,
 		\end{equation}
-		where $x^*$ is the minimizer of the objective function $f$ (\ref{ERM}). Then the iterates of the Algorithm \ref{SN} satisfy
+		где $x^*$ - точка оптимума для $f$ (\ref{ERM}). Тогда итерации Алгоритма \ref{SN} удовлетворяют
 		\begin{equation}
 			\|x^{k+1} - x^*\| \leqslant \frac{H}{2 \mu} \mathcal W^k.
 		\end{equation}
 	\end{lemma}
 	
 	\begin{lemma}\label{lemma:2}
-		Assume that every $f_i$ is $\mu$-strongly convex and has $H$-Lipschitz Hessian. If $\|w_i^0 - x^*\| \leqslant \frac{\mu}{H}$ for $i = 1, ..., n$, then for all $k$
+		Предположим, что каждая $f_i$ - $\mu$-сильно выпукла и имеет $H$-липшицев гессиан. Если $\|w_i^0 - x^*\| \leqslant \frac{\mu}{H}$ для всех $i = 1, ..., n$, тогда для всех $k$
 		\begin{equation}
 			\mathcal W^k \leqslant \frac{\mu^2}{H^2}.
 		\end{equation}
 	\end{lemma}
 	
-	The last lemma is the one that incorporates the nature of the sampling strategy. The authors of the Algorithm \ref{SN} used so called $\tau$-nice sampling, which chooses a subset $S^{k} \subseteq \{ 1, 2, ..., n \}$ precisely of size $\tau$ uniformly at random. Therefore it is possible to determine the expectation $\mathbb E_k[\mathcal W^{k+1}] \overset{\text{def}} = \mathbb E[\mathcal W^{k+1} | x^k, w_1^k, ..., w_n^k]$.
+	 Последняя лемма - именно та, которая опирается на природу стратегии семплинга. Авторы Алгоритма \ref{SN} используют так называемый $\tau$-nice семплинг, который выбирает подмножество $S^{k} \subseteq \{ 1, 2, ..., n \}$ в точности размера $\tau$ равновероятно. В таком случае можно определить математическое ожидание $\mathbb E_k[\mathcal W^{k+1}] \overset{\text{def}} = \mathbb E[\mathcal W^{k+1} | x^k, w_1^k, ..., w_n^k]$.
 	
 	\begin{lemma}\label{lemma:3}
-		The random iterates of the Algorithm \ref{SN} with $\tau$-nice sampling satisfy the identity
+		Итерации Алгоритма \ref{SN} с $\tau$-nice семплингом удовлетворяют соотношению
 		\begin{equation}
 			\mathbb E_k[\mathcal W^{k+1}] = \frac{\tau}{n} \| x^{k+1} - x^* \|^2 + \left(1 - \frac{\tau}{n}\right) \mathcal W^k
 		\end{equation}
 	\end{lemma}
 	
-	Then follows the theorem, which estimates the convergence rate of the Algorithm \ref{SN} with $\tau$-nice sampling.
+	Далее следует теорема, дающая оценку сходимости Алгоритма \ref{SN} с $\tau$-nice семплингом.
 	
 	\begin{theorem} \label{theorem:1}
-		Assume that every $f_i$ is $\mu$-strongly convex and has $H$-Lipschitz Hessians. Then for the random iterates of the Algorithm 1 we have the recursion
+		Предположим, что каждая $f_i$ - $\mu$-сильно выпукла и имеет $H$-липшицев гессиан. Тогда для итераций Алгоритма \ref{SN} выполнено рекуррентное соотношение
 		\begin{equation}
 			\mathbb E_k[\mathcal W^{k+1}] \leqslant \left( 1 - \frac{\tau}{n} + \frac{\tau}{n} \left( \frac{H}{2\mu} \right)^2 \mathcal W^k \right) \mathcal W^k.
 		\end{equation}
-		Moreover, if $\forall i\ \|w_i^0 - x^*\| \leqslant \frac{\mu}{H}$ then
+		Кроме того, если $\forall i\ \|w_i^0 - x^*\| \leqslant \frac{\mu}{H}$, то
 		\begin{equation}
 			\mathbb E_k[\mathcal W^{k+1}] \leqslant \left( 1 - \frac{3\tau}{4n} \right) \mathcal W^k.
 		\end{equation}
 	\end{theorem}
 	
 	
-	\subsection{Sampling Strategies}
+	\subsection{Стратегии семплинга}
 	
-	\subsubsection{Doubly Uniform Strategies}
+	\subsubsection{Вдвойне однородные сратегии}
 	
-	To begin with, we discuss the sampling strategies that were presented in \cite{richtarik2016parallel} in relation to the Parallel Coordinate Descend method. These strategies are \textit{Doubly Uniform.}
+	Для начала рассмотрим стратегии семплинга, представленные в \cite{richtarik2016parallel} в отношении покоординатных методов. Эти стратегии являются \textit{вдвойне однородными.}
 	
-	\begin{definition}[Doubly Uniform (DU) sampling] \label{DU}
-		This is a sampling strategy that generates all sets of equal cardinality with equal probability. That is, if $|S_1| = |S_2|$ then $\mathbb P(S_1) = \mathbb P(S_2)$.
+	\begin{definition}[Вдвойне однородный (Doubly Uniform, DU) семплинг] \label{DU}
+		Это такие стратегии, которые возвращают все множества одинаковой мощности с одинаковой вероятностью. То есть если $|S_1| = |S_2|$, то $\mathbb P(S_1) = \mathbb P(S_2)$.
 	\end{definition}
 	
-	The name comes from the fact this property is stronger than \textit{uniformity}, which means that all $i \in [n]$ have equal probability to be included in the chosen set $\hat S$. That can be seen if we denote the probability $q_j = \mathbb P(|\hat S| = j)$ for $j = 0, 1, ... n$. Then for every $S \subseteq [n]$ we have $\mathbb P(S) = q_j / \binom{n}{j}$. Hence
+	Название обусловлено тем, что данное свойство сильнее, чем \textit{однородность}, которая означает, что все $i \in [n]$ имеют одинаковую вероятность быть включенными в выбранное множество $\hat S$. Это можно увидеть, если обозначить вероятность $q_j = \mathbb P(|\hat S| = j)$ для всех $j = 0, 1, ... n$. Тогда для всех $S \subseteq [n]$ имеем $\mathbb P(S) = q_j / \binom{n}{j}$. Отсюда
 	\begin{equation}
 		p_i = \sum \limits_{j=1}^n \sum \limits_{|S|=j, i \in S} \mathbb P(S) = \sum \limits_{j=1}^n \sum \limits_{|S|=j, i \in S} \frac{q_j}{\binom{n}{j}} = \sum \limits_{j=1}^n   \frac{\binom{n-1}{j-1}q_j}{\binom{n}{j}} = \frac{1}{n} \sum \limits_{j=1}^n j q_j = \frac{\mathbb E[|\hat S|]}{n}
 	\end{equation}
 	
-	It is clear that a Doubly Uniform sampling strategy is determined by the vector $q$ of probability distribution on the possible sizes $j = 0, 1, ..., n$ of the set $\hat S$. There are some interesting DU strategies.
+	Ясно, что вдвойне однородная стратегия семплинга задается вектором $q$ распределения вероятностей на всевозможных размерах $j = 0, 1, ..., n$ множества $\hat S$. Представляют интерес несколько DU-стратегий.
 	
 	\begin{enumerate}
-		\item \textbf{$\tau$-Nice sampling.}\label{nice} Fix $1 \leqslant \tau \leqslant n$. A sampling is called $\tau$-nice if it is DU with $q_\tau = 1$. This is the strategy used by the authors of the Algorithm \ref{SN}. This strategy can be interpreted in terms of multi-process computation. So, there are $\tau$ processors availible. On the moment of sampling we choose a batch of size $\tau$ and assign each train object $i \in \hat S$ to a dedicated processor. Therefore, each processor will update the values of the objective function, gradients and Hessians with respect to new $w_i^k$.
+		\item \textbf{$\tau$-nice семплинг.}\label{nice} Зафиксируем $1 \leqslant \tau \leqslant n$. Семплинг называется $\tau$-nice, если он является DU с $q_\tau = 1$. Именно эта стратегия используется авторами Алгоритма \ref{SN}. Эту стратегию можно интерпретировать в терминах параллельных вычислений. Так, пусть есть $\tau$ доступных процессоров. В момент семплинга мы выбираем батч размера $\tau$ и назначаем каждый объект $i \in \hat S$ одному процессору. Таким образом, каждый процессор обновит значение целевой функции, градиенты и гессианы в соответствии с новым $w_i^k$.
 		
-		\item \textbf{$\tau$-Independent sampling.}\label{tau-ind} Fix $1 \leqslant \tau \leqslant n$. A $\tau$-independent sampling is a DU sampling with 
+		\item \textbf{$\tau$-независимый семплинг.}\label{tau-ind} Зафиксируем $1 \leqslant \tau \leqslant n$. $\tau$-независимым семплингом называется DU-семплинг с
 		\begin{equation} 
 			q_k = 
 			\begin{cases}
@@ -226,129 +228,129 @@
 				0, & k = \tau + 1, ..., n
 			\end{cases}
 		\end{equation}
-		where $c_1 = (1/n)^\tau$ and $c_k = (k/n)^\tau - \sum \limits_{i=1}^{k-1} \binom{k}{i}c_i$ for $k \geqslant 2$.
+		где $c_1 = (1/n)^\tau$ и $c_k = (k/n)^\tau - \sum \limits_{i=1}^{k-1} \binom{k}{i}c_i$ for $k \geqslant 2$.
 		
-		The interpretation is that each of $\tau$ processors chooses one of the train objects $i \in [n]$. If several processors have chosen the same train object, then only one of them gets access to it. This strategy is very easy to implement in terms of parallel computation. Besides, when batches are small, we have $\tau \ll n$ and then $\tau$-independent sampling is a good approximation of $\tau$-nice variant.
+		Интерпретация состоит в том, что каждый из $\tau$ процессоров выбирает один из объектов обучающей выборки $i \in [n]$. Если несколько процессоров выбрали один и тот же объект, то только один из них получает доступ к нему. Эта стратегия легко реализуема в терминах параллельных вычислений. Кроме того, если батчи невелики, мы имеем $\tau \ll n$, и тогда $\tau$-независимый семплинг хорошо приближает $\tau$-nice.
 		
-		\item \textbf{$(\tau, p_b)$-Binomial sampling.}\label{tau-bin} Fix $1 \leqslant \tau \leqslant n$ and $0 \leqslant p_b \leqslant 1$. The strategy is a DU sampling with
+		\item \textbf{$(\tau, p_b)$-биномиальный семплинг.}\label{tau-bin} Фиксируем $1 \leqslant \tau \leqslant n$ и $0 \leqslant p_b \leqslant 1$. Стратегия является DU-семплингом с
 		\begin{equation}
 			q_k = \binom{\tau}{k}p_b^k(1 - p_b)^k, \quad k \leqslant \tau
 		\end{equation}
-		That is a model of the situation when each of $\tau$ processors is available at the moment of sampling with probability $p_b$, hence $q_k$ is the probability that $k$ processors are available.
+		Это модель ситуации, когда каждый из $\tau$ процессоров доступен в момент семплинга с вероятностью $p_b$, отсюда $q_k$ - вероятность того, что $k$ процессоров оказались доступны.
 	\end{enumerate}
 	
-	\subsubsection{Independent strategies}
+	\subsubsection{Независимые стратегии}
 	
-	Apart from Doubly Uniform strategies we consider strategies, which make a decision about each train object $i \in [n]$ independently with its own probability $p_i$. Notably, in case $p_1 = p_2 =...= p_n$ the strategy remains DU. But in general case some changes appear in the convergence rate estimation. There is the a strategy called Important Sampling, which assigns probabilities proportionally to the Lipschitz parameters (\ref{lip-hess}) of the Hessians $\nabla^2 f_i(x)$ (or gradients $\nabla f_i(x)$).
+	Кроме вдвойне однородных стратегий, мы рассматриваем такие стратегии, которые принимают решение о каждом тренировочном объекте $i \in [n]$ независимо, со своей вероятностью $p_i$. Отметим, что в случае $p_1 = p_2 =...= p_n$ стратегия остается DU. Однако в общем случае появляются некоторые изменения в оценке скорости сходимости. Существует стратегия, называемая \textit{importance sampling}, которая присваивает вероятности пропорционально константам Липшица (\ref{lip-hess}) гессианов $\nabla^2 f_i(x)$ (или градиентов $\nabla f_i(x)$).
 	
-	\textbf{Importance sampling.}\label{imp-hess} The strategy is to assign
+	\textbf{Importance sampling (ИС).}\label{imp-hess} Стратегия задает вероятности
 	\begin{equation}
 		p_i = \frac{H_i}{\sum \limits_{i=1}^n H_i}
 	\end{equation}
 	
-	\subsubsection{Consecutive strategy}
+	\subsubsection{Последовательная стратегия}
 	
-	Lastly, we explore a strategy which consists in consecutively passing the shuffled data:
+	Наконец, мы изучаем стратегию, состоящую в последовательном проходе по перемешанным данным:
 	
-	\textbf{Consecutive strategy.}\label{consec} At the first iteration of the Algorithm \ref{SN} we fix a random permutation $\pi$ of all data points indexes $[n]$, and batch size $\tau$. Then on the iteration number $k$ we take train objects with the following numbers:
+	\textbf{Последовательная стратегия.}\label{consec} На первой итерации Алгоритма \ref{SN} фиксируется случайная перестановка $\pi$ обучающей выборки $[n]$ и размер батча $\tau$. Далее на итерации номер $k$ берутся объекты с номерами:
 	\begin{equation}
 		\pi(k+1\ \text{mod}\ n), \pi(k+2\ \text{mod}\ n), ..., \pi(k+\tau\ \text{mod}\ n).
 	\end{equation}
-	And if $(k\ \text{mod}\ n) + \tau > n$ then we simply take all the objects that have numbers are between $k\ \text{mod}\ n$ and $n$, so on this step the batch size can be smaller than $\tau$.
+	А если $(k\ \text{mod}\ n) + \tau > n$, то берутся все объекты с номерами между $k\ \text{mod}\ n$ и $n$, то есть на данном шаге размер батча может быть меньше $\tau$.
 	
-	\subsection {Convergence rate}
+	\subsection {Скорость сходимости}
 	
-	\subsubsection{Estimations for Doubly Uniform sampling}
+	\subsubsection{Оценки для вдвойне однородного семплинга}
 	
-	To determine the convergence rate of the Algorithm \ref{SN} with Doubly Uniform sampling (\ref{DU}) we turn to the Lemma \ref{lemma:3}, since it is the first place in the Proofs for the Algorithm \ref{SN} which depends on the sampling strategy. It is generalized to an arbitrary DU sampling.
+	Чтобы установить скорость сходимости Алгоритма \ref{SN} с вдвойне однородным семплингом (\ref{DU}), обратимся к Лемма \ref{lemma:3}, поскольку это первое место в доказательстве Алгоритма \ref{SN}, которое зависит от стратегии семплинга. Она обобщается на произвольный DU-семлпинг.
 	
 	\begin{lemma} \label{lemma:4}
-		The random iterates of the Algorithm \ref{SN} with Doubly Uniform sampling satisfy
+		Итерации Алгоритма \ref{SN} с вдвойне однородным семплингом удовлетворяют
 		\begin{equation}
 			\mathbb E_k[\mathcal W^{k+1}] = p \mathbb E_k[\| x^{k+1} - x^* \|^2] + \left(1 - p \right) \mathcal W^k,
 		\end{equation}
-		where $p = \frac{\mathbb E[|\hat S|]}{n}$.
+		где $p = \frac{\mathbb E[|\hat S|]}{n}$.
 	\end{lemma}
 	\begin{proof}
-		The sampling strategy being Doubly Uniform implies that all train objects have equal probability $p = \frac{\mathbb E[|\hat S|]}{n}$ to be included in the chosen set $\hat S$. Therefore, by the linearity of expectation, we obtain the result.
+		Свойство вдвойне однородности влечет, что все объекты имеют одинаковую вероятность $p = \frac{\mathbb E[|\hat S|]}{n}$ быть включенными в выбранное множество $\hat S$. Таким образом, в силу линейности математического ожидания, получаем требуемое.
 	\end{proof}
-	Thereby the final estimation has the same form as the one presented in \cite{kovalev2019stochastic}:
+	Тогда итоговая оценка имеет ту же форму, что и представлено в \cite{kovalev2019stochastic}:
 	\begin{equation}\label{DU convergence}
 		\mathbb E_k[\mathcal W^{k+1}] \leqslant \left( 1 - p + p \left( \frac{H}{2\mu} \right)^2 \mathcal W^k \right) \mathcal W^k
 	\end{equation}
-	in general, and in case $\forall i\ \| w_i^0 - x^* \| \leqslant \frac{\mu}{H}$:
+	в общем случае, а для $\forall i\ \| w_i^0 - x^* \| \leqslant \frac{\mu}{H}$:
 	\begin{equation}
 		\mathbb E_k[\mathcal W^{k+1}] \leqslant \left( 1 - \frac{3}{4}p \right) \mathcal W^k.
 	\end{equation}
 	
-	That means, if we fix the expected batch size $\mathbb E [|\hat S|] = \tau$ then the convergence rate is the same as in $\tau$-nice sampling.
+	Значит, если зафиксировать ожидаемый размер батча $\mathbb E [|\hat S|] = \tau$, то скорость сходимости такая же, как и у $\tau$-nice семплинга.
 	
-	\subsubsection{Independent and Consecutive strategies}
+	\subsubsection{Независимые и последовательная стратегии}
 	
-	Now we consider the general case of choosing each train object independently with probability $p_i$.
+	Теперь рассмотрим общий случай выбора каждого объекта независимо с вероятностью $p_i$.
 	
 	\begin{proposition} \label{proposition:1}
-		In a particular iteration of Algorithm \ref{SN} given a fixed expectation of the batch size $\mathbb E_k[|\hat S^k|] = \tau$ the minimum value in the estimation of $\mathbb E_k[\mathcal W^{k+1}]$ is obtained by setting $p_i = 1$ for several $i \in [n]$, possibly $p_i \in (0, 1)$ for a single object $i$, and $p_i = 0$ for others.
+		На каждой конкретной итерации Алгоритма \ref{SN} при фиксированном матожидании размера батча $\mathbb E_k[|\hat S^k|] = \tau$ минимальное значение в оценке $\mathbb E_k[\mathcal W^{k+1}]$ достигается, если задать $p_i = 1$ для некоторых $i \in [n]$, возможно $p_i \in (0, 1)$ для одного $i$, и $p_i = 0$ для остальных.
 	\end{proposition}
 	
 	\begin{proof}
-		We can generalize the estimation from Lemma \ref{lemma:4} to our case.
+		Мы можем обобщить оценку из Леммы \ref{lemma:4} на наш случай.
 		\begin{equation}
 			n \cdot \mathbb E_k[\mathcal W^{k+1}] = \sum \limits_{i=1}^n p_i  \| x^{k+1} - x^* \|^2 + \sum \limits_{i=1}^n \left(1 - p_i \right) \|w_i^k - x^*\|^2.
 		\end{equation}
-		Considering $\tau = \mathbb E_k[|\hat S^k|] = \sum \limits_{i=1}^n p_i$, we have
+		Учитывая $\tau = \mathbb E_k[|\hat S^k|] = \sum \limits_{i=1}^n p_i$, имеем
 		\begin{equation}
 			n \cdot \mathbb E_k[\mathcal W^{k+1}] = \left( \tau  \| x^{k+1} - x^* \|^2 + n \cdot \mathcal W^k \right) - \sum \limits_{i=1}^n p_i \|w_i^k - x^*\|^2.
 		\end{equation}
-		So the goal is to maximize $\sum \limits_{i=1}^n p_i \|w_i^k - x^*\|^2$ satisfying the following:
+		То есть задача состоит в максимизации $\sum \limits_{i=1}^n p_i \|w_i^k - x^*\|^2$ при следующем условии:
 		\begin{equation} \label{polyhedron}
 			\begin{cases}
 				\sum \limits_{i=1}^n p_i = \tau \\
 				0 \leqslant p_i \leqslant 1\ \forall i
 			\end{cases}
 		\end{equation}
-		The solution to this Linear Programming problem is the vertex of the polyhedron defined by the constraints (\ref{polyhedron}). The optimal vertex has the maximum projection of its coordinate vector $(p_1, ..., p_n)^\top$ on the vector $(\|w_i - x^*\|^2, ..., \|w_n - x^*\|^2)$. That is the vertex, which coefficients corresponding to the biggest $\|w_i - x^*\|^2$ are set to 1, corresponding to the smallest $\|w_i - x^*\|^2$ are set to 0, and one coordinate is intermediate if $\tau$ is not an integer.
+		Решением данной задачи линейного программирования является вершина многогранника, задаваемого ограничениями (\ref{polyhedron}). Оптимальная вершина имеет максимальную проекцию своего координатного вектора $(p_1, ..., p_n)^\top$ на вектор $(\|w_i - x^*\|^2, ..., \|w_n - x^*\|^2)$. Это та вершина, коэффициенты которой, отвечающие наибольшим $\|w_i - x^*\|^2$ установлены равными 1, отвечающие наименьшим $\|w_i - x^*\|^2$ установлены равными 0, и одна координата имеет промежуточное значение, если $\tau$ не целое.
 	\end{proof}
 	
-	In this way, we can see that it is sensible to update those parameter vectors $w_i^k$, which have not been updated recently. It means that an optimal independent strategy can be "approximated" by the consecutive strategy. This proposition is illustrated in the experiments section (\ref{fig:3}).
+	В таком случае мы видим, что имеет смысл обновлять те векторы параметров $w_i^k$, которые не обновлялись дольше других. Это значит, что оптимальная независимая стратегия может быть "приближена" последовательной стратегией. Данное предложение иллюстрируется в секции экспериментов (\ref{fig:3}).
 	
 	
-	\subsubsection{Notes about Importance Sampling}
+	\subsubsection{Замечания о Importance Sampling}
 	
-	In some methods, particularly in the traditional SGD, the benefit of applying Importance Sampling is to replace the estimations determined by $H_{max}$ - the maximum of the Lipschitzness parameters $H_i$ of each $f_i$ - with the ones determined by $\overline H$ - the mean of all $H_i$. This improvement is achieved by considering a problem, similar to the original (\ref{ERM}), but with each $f_i$ scaled inversely proportionally to $H_i$, in order to preserve the expectation of the random estimation of $f(x)$ and $\nabla f(x)$ equal to the actual values $f$ and $\nabla f(x)$.
+	В некоторых методах, в частности, в традиционном SGD, преимущество применения ИС состоит в том, чтобы заменить оценки, основанные на $H_{max}$ - максимуме из констант Липшица $H_i$ каждой $f_i$ - оценками, обусловленными $\overline H$ - среднему значению всех $H_i$. Данное улучшение достигается благодаря рассмотрению задачи, похожей на оригинальную (\ref{ERM}), но где каждая $f_i$ масштабирована обратно пропорционально $H_i$ для того, чтобы сохранить математическое ожидание  $f(x)$ и $\nabla f(x)$ равными истинным значениям $f$ и $\nabla f(x)$.
 	
-	However, the Algorithm \ref{SN} has slightly different nature. That implies the fact that the direction of a step is not estimated by information from only those objects that have been included in the batch on the current iteration. This direction is calculated taking into account all the information from the previous step with some adjustments from the current step. In this case, the aforementioned technique cannot be easily involved. Therefore it is very hard to obtain any particular estimations for the Importance Sampling applied to the Algorithm \ref{SN}.
+	Однако Алгоритм \ref{SN} имеет немного другую природу. Это значит, что направление шага оценивается по информации не только лишь от тех объектов, которые включены в батч на текущей итерации. Оно вычисляется, учитывая всю информацию с предыдущего шага, с небольшими изменениями на текущем шаге. Следовательно, вышеупомянутая техника не может быть применена напрямую. В таком случае оказывается очень трудно установить какие-либо конкретные оценки для ИС применительно к Алгоритму \ref{SN}.
 	
-	\section{Experiments}
+	\section{Эксперименты}
 	
-	We run the experiments on a dataset obtained by {\fontfamily{qcr}\selectfont make\_classification} function from {\fontfamily{qcr}\selectfont sklearn} with 500 objects and 5 features. The code can be found in the repository of the project (\href{https://github.com/intsystems/2023-Project-136/tree/master/code}{link}). The objective is $l_2$-regularized logistic regression: $f_i(x) = \log(1 + \exp(-b_i \cdot a_i^T x)) + \frac{\lambda}{2}\|x\|_2^2$, where $x, a_1, ..., a_n \in \mathbb R^d$, $b_i = \pm 1$ and the regularizer $\lambda$ is set to 0.01. On each figure we show two graphs. The first represents the trajectory of $\mathcal W^k = \frac{1}{n} \sum \limits_{i=1}^n \|w_i^k - x^* \|^2$ and the second represents the history of the functional suboptimality. The $x$-axis is the number of the passes through the dataset. 
+	Мы проводим эксперименты на данных, полученных с помощью функции {\fontfamily{qcr}\selectfont make\_classification} из библиотеки {\fontfamily{qcr}\selectfont sklearn} с 500 объектами и 5 признаками. Код эксперимента доступен в репозитории проекта (\href{https://github.com/intsystems/2023-Project-136/tree/master/code}{ссылка}). Оптимизируем логистическую функцию с $l_2$-регуляризацией: $f_i(x) = \log(1 + \exp(-b_i \cdot a_i^T x)) + \frac{\lambda}{2}\|x\|_2^2$, где $x, a_1, ..., a_n \in \mathbb R^d$, $b_i = \pm 1$ и константа регуляризации $\lambda$ равна 0.01. На каждой картинке представлено два графика. Первый отражает траекторию величины $\mathcal W^k = \frac{1}{n} \sum \limits_{i=1}^n \|w_i^k - x^* \|^2$, а второй - историю невязки по функции. Ось $x$ - количество полных проходов по датасету. 
 	
-	\subsection{Doubly Uniform strategies}
+	\subsection{Вдвойне однородные стратегии}
 	\begin{figure}[h!]\label{fig:1}
 		\centering
 		\includegraphics[width=\textwidth]{uniform strategies}
-		\caption{Comparison of the $\tau$-nice, $\tau$-independent and $\tau$-binomial strategies}
+		\caption{Сравнение стратегий $\tau$-nice, $\tau$-независимой и $\tau$-биномиальной}
 	\end{figure}
-	We see that all the doubly uniform strategies, having the same expected batch size, perform the same convergence rate.
+	Мы видим, что все вдвойне однородные стратегии с одинаковым математическим ожиданием размера батча демонстрируют одинаковую скорость сходимости.
 	
 	\subsection{Importance Sampling}
 	\begin{figure}[h!]\label{fig:2}
 		\centering
 		\includegraphics[width=\textwidth]{importance sampling}
-		\caption{Comparison of the $\tau$-nice and the Importance Sampling}
+		\caption{Сравнение $\tau$-nice семплинга и Importance Sampling}
 	\end{figure}
-	We apply both Important Sampling strategies based on Hessians and gradients Lipschitzness parameters. Those are $L_i = \frac{1}{4}\|a_i\|^2$ and $H_i = \frac{1}{10} \|a_i\|^3$ for the logistic regression problem. It is clear that for the considered problem the Importance Sampling used with the Algorithm \ref{SN} does not bring practical improvements.
+	Мы применяем ИС, основанный как на липшицевости гессианов, так и градиентов. Для задачи логистической регрессии константы Липшица равны $H_i = \frac{1}{10} \|a_i\|^3$ и $L_i = \frac{1}{4}\|a_i\|^2$ соответственно. Видно, что для рассматриваемой задачи ИС, примененный к Алгоритму \ref{SN}, не дает практических улучшений.
 	
-	\subsection{Consecutive strategy}
+	\subsection{Последовательная стратегия}
 	\begin{figure}[h!]\label{fig:3}
 		\centering
 		\includegraphics[width=\textwidth]{consecutive strategy 10}
-		\caption{Comparison of the $\tau$-nice and the consecutive strategy}
+		\caption{Сравнение $\tau$-nice и последовательной стратегии}
 	\end{figure}
-	In this case we have a practical improvement. The consecutive strategy does outperform the baseline $\tau$-nice one. Nevertheless, theoretical explainations of this fact are still unclear.
+	В данном случае имеется практическое улучшение. Последовательная стратегия превосходит базовую $\tau$-nice. Тем не менее, теоретическое обоснование этого факта остается неясным.
 	
-	\section{Conclusion}
-	So, we do a comparison of different sampling strategies applied to the Stochastic Newton algorithm (\ref{SN}). Firstly, we generalize the linear convergence rate estimations to all Doubly Uniform strategies and determine the practical equivalence of the most common representatives of this type of sampling (Lemma \ref{lemma:4}, Equation \ref{DU convergence}, Figure \ref{fig:1}). Secondly, we obtain that the Importance Sampling is not likely to outperform the usual $\tau$-nice strategy, and has been noticed to be inferior in practice (Figure \ref{fig:2}). Finally, the improvements come from applying the consecutive strategy (Figure \ref{fig:3}). This effect is encouraging, and therefore needs to be studied more precisely.
+	\section{Заключение}
+	Таким образом, мы приводим сравнение различных стратегий семплинга, применяемых к Стохастическому методу Ньютона (\ref{SN}). Во-первых, мы обощаем линейную оценку скорости сходимости на все вдвойне однородные стратегии и устанавливаем практическую эквивалентность наиболее популярных представителей данного класса (Лемма \ref{lemma:4}, Уравнение \ref{DU convergence}, Рис. \ref{fig:1}). Во вторых, мы получаем, что Importance Sampling маловероятно будет превосходить стандартную стратегию $\tau$-nice, а на практике сильно уступает (Рис. \ref{fig:2}). Наконец, улучшения появляются при использовании последовательной стратегии (Рис. \ref{fig:3}). Это, безусловно, положительный эффект, и он требует дальнейшего изучения.
 	
 	
 	% references title
